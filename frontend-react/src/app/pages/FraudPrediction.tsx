@@ -5,23 +5,11 @@ import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { predictFraud, type FraudPredictionResponse } from "../../services/fraudApi";
 
 const TRANSACTION_TYPES = ["PAYMENT", "TRANSFER", "CASH_OUT", "DEBIT", "CASH_IN"];
 
-interface Prediction {
-  fraud_prediction: number;
-  fraud_probability: number;
-  risk_level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-  risk_score_v1: number;
-  model_used: string;
-  reason_codes: {
-    high_risk_transaction_type: boolean;
-    sender_emptied_account: boolean;
-    large_amount: boolean;
-    origin_balance_error: boolean;
-    dest_balance_error: boolean;
-  };
-}
+type Prediction = FraudPredictionResponse;
 
 const riskGradient = (score: number) => {
   if (score >= 80) return "#FF2D55";
@@ -43,43 +31,36 @@ export function FraudPrediction() {
 
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
-  const handlePredict = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const amt = parseFloat(form.amount) || 5000;
-      const origDiff = Math.abs((parseFloat(form.oldbalanceOrg) || 0) - (parseFloat(form.newbalanceOrig) || 0) - amt);
-      const destDiff = Math.abs((parseFloat(form.oldbalanceDest) || 0) + amt - (parseFloat(form.newbalanceDest) || 0));
-      const highType = ["CASH_OUT", "TRANSFER"].includes(form.transaction_type);
-      const emptied = parseFloat(form.newbalanceOrig) === 0 && parseFloat(form.oldbalanceOrg) > 0;
-      const large = amt > 200000;
-      const origErr = origDiff > 1;
-      const destErr = destDiff > 1;
+const handlePredict = async () => {
+  setLoading(true);
+  setError(null);
 
-      const flags = [highType, emptied, large, origErr, destErr].filter(Boolean).length;
-      const prob = Math.min(0.97, 0.15 + flags * 0.17 + (amt > 50000 ? 0.12 : 0));
-      const score = Math.round(prob * 100 * 10) / 10;
-      const level = score >= 80 ? "CRITICAL" : score >= 60 ? "HIGH" : score >= 35 ? "MEDIUM" : "LOW";
+  try {
+    const payload = {
+      amount: Number(form.amount || 0),
+      transaction_type: form.transaction_type,
+      oldbalanceOrg: Number(form.oldbalanceOrg || 0),
+      newbalanceOrig: Number(form.newbalanceOrig || 0),
+      oldbalanceDest: Number(form.oldbalanceDest || 0),
+      newbalanceDest: Number(form.newbalanceDest || 0),
+      sender_txn_count: Number(form.sender_txn_count || 1),
+      receiver_txn_count: Number(form.receiver_txn_count || 1),
+    };
 
-      setPrediction({
-        fraud_prediction: prob >= 0.5 ? 1 : 0,
-        fraud_probability: Math.round(prob * 1000) / 1000,
-        risk_level: level,
-        risk_score_v1: score,
-        model_used: "XGBoost v4.2.1 (Champion)",
-        reason_codes: {
-          high_risk_transaction_type: highType,
-          sender_emptied_account: emptied,
-          large_amount: large,
-          origin_balance_error: origErr,
-          dest_balance_error: destErr,
-        },
-      });
-      setLoading(false);
-    }, 900);
-  };
+    const result = await predictFraud(payload);
+    setPrediction(result);
+  } catch (err) {
+    setPrediction(null);
+    setError(err instanceof Error ? err.message : "Failed to connect to FRIX API");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const rc = prediction?.reason_codes;
   const reasonLabels: Record<keyof NonNullable<typeof rc>, string> = {
@@ -194,9 +175,15 @@ export function FraudPrediction() {
         </Card>
 
         {/* Output */}
-        <div className="space-y-5">
-          {prediction ? (
-            <motion.div
+<div className="space-y-5">
+  {error && (
+    <Card className="bg-card border-[#FF2D55]/40 p-5 text-[#FF2D55] text-sm font-mono">
+      {error}
+    </Card>
+  )}
+
+  {prediction ? (
+            < motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
@@ -243,11 +230,16 @@ export function FraudPrediction() {
                     { label: "fraud_probability", value: prediction.fraud_probability.toFixed(3), color: riskGradient(prediction.risk_score_v1) },
                     { label: "risk_score_v1", value: prediction.risk_score_v1.toFixed(1), color: riskGradient(prediction.risk_score_v1) },
                     { label: "risk_level", value: prediction.risk_level, color: riskGradient(prediction.risk_score_v1) },
-                    { label: "model_used", value: "XGBoost v4.2.1", color: "#00D4FF" },
+                    { label: "model_used", value: prediction.model_used, color: "#00D4FF" },
                   ].map((m) => (
                     <div key={m.label} className="p-3 rounded-lg bg-muted/40 border border-border">
                       <div className="text-xs text-muted-foreground font-mono mb-1">{m.label}</div>
-                      <div className="text-lg font-bold font-mono" style={{ color: m.color }}>{m.value}</div>
+                      <div
+  className="text-lg font-bold font-mono break-words overflow-hidden"
+  style={{ color: m.color }}
+>
+  {m.value}
+</div>
                     </div>
                   ))}
                 </div>
