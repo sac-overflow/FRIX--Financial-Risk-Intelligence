@@ -45,12 +45,34 @@ def build_model_features(transaction: TransactionRequest) -> tuple[pd.DataFrame,
 
     is_large_amount = int(transaction.amount > LARGE_AMOUNT_THRESHOLD)
 
-    risk_score_v1 = (
+    if transaction.receiver_txn_count > 1000:
+        receiver_activity_score = 30
+    elif transaction.receiver_txn_count > 500:
+        receiver_activity_score = 25
+    elif transaction.receiver_txn_count > 100:
+        receiver_activity_score = 18
+    elif transaction.receiver_txn_count > 30:
+        receiver_activity_score = 10
+    else:
+        receiver_activity_score = 0
+
+    if transaction.sender_txn_count > 500:
+        sender_activity_score = 15
+    elif transaction.sender_txn_count > 100:
+        sender_activity_score = 10
+    elif transaction.sender_txn_count > 30:
+        sender_activity_score = 5
+    else:
+        sender_activity_score = 0
+
+    risk_score_v1 = min(
+        100,
         is_high_risk_type * 20
         + is_large_amount * 25
         + sender_emptied_account * 25
         + int(abs(dest_balance_error) > 0) * 20
-        + int(transaction.receiver_txn_count > 30) * 10
+        + receiver_activity_score
+        + sender_activity_score,
     )
 
     engineered_values = {
@@ -59,6 +81,8 @@ def build_model_features(transaction: TransactionRequest) -> tuple[pd.DataFrame,
         "is_high_risk_type": is_high_risk_type,
         "sender_emptied_account": sender_emptied_account,
         "is_large_amount": is_large_amount,
+	"receiver_activity_score": receiver_activity_score,
+        "sender_activity_score": sender_activity_score,
         "risk_score_v1": risk_score_v1,
     }
 

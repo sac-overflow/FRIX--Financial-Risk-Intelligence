@@ -33,7 +33,11 @@ export function FraudPrediction() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
+const set = (key: string, val: string) => {
+  setForm((f) => ({ ...f, [key]: val }));
+  setPrediction(null);
+  setError(null);
+};
 
 const handlePredict = async () => {
   setLoading(true);

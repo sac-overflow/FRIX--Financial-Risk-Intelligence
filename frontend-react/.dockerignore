@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+starter-backup
+figma-export
+*.zip
+.git
+.gitignore

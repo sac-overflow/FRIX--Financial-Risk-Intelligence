@@ -1,0 +1,20 @@
+services:
+  frix-backend:
+    build:
+      context: ./ai-service-fastapi
+    container_name: frix-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - FRIX_TEST_MODE=true
+
+  frix-frontend:
+    build:
+      context: ./frontend-react
+    container_name: frix-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_FRIX_API_BASE_URL=http://127.0.0.1:8000
+    depends_on:
+      - frix-backend
