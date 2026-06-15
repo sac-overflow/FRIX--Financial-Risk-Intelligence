@@ -3,6 +3,14 @@ import { motion } from "motion/react";
 import { Code2, Copy, Play, CheckCircle, Lock, Zap, Globe, Container, GitBranch, ExternalLink } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import {
+  getHealthStatus,
+  predictFraud,
+  sampleFraudPayload,
+  type FraudPredictionResponse,
+  type HealthResponse,
+} from "../../services/fraudApi";
+
 
 const endpoints = [
   {
@@ -75,14 +83,60 @@ const tagColors: Record<string, string> = {
 };
 
 export function APIConsole() {
-  const [activeEndpoint, setActiveEndpoint] = useState(0);
-  const [copied, setCopied] = useState<string | null>(null);
+const [activeEndpoint, setActiveEndpoint] = useState(0);
+const [copied, setCopied] = useState<string | null>(null);
+const [loading, setLoading] = useState(false);
+const [apiError, setApiError] = useState<string | null>(null);
+const [healthResult, setHealthResult] = useState<HealthResponse | null>(null);
+const [predictionResult, setPredictionResult] = useState<FraudPredictionResponse | null>(null);
 
   const copy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopied(key);
     setTimeout(() => setCopied(null), 2000);
   };
+const runEndpoint = async () => {
+  setLoading(true);
+  setApiError(null);
+
+  try {
+    const endpoint = endpoints[activeEndpoint];
+
+    if (endpoint.path === "/health") {
+      const result = await getHealthStatus();
+      setHealthResult(result);
+      setPredictionResult(null);
+    } else if (endpoint.path === "/predict-fraud") {
+      const result = await predictFraud(sampleFraudPayload);
+      setPredictionResult(result);
+      setHealthResult(null);
+    } else {
+      const result = await getHealthStatus();
+      setHealthResult(result);
+      setPredictionResult(null);
+    }
+  } catch (err) {
+    setHealthResult(null);
+    setPredictionResult(null);
+    setApiError(err instanceof Error ? err.message : "Failed to call FRIX API");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const selectedEndpoint = endpoints[activeEndpoint];
+
+const liveRequest =
+  selectedEndpoint.path === "/health"
+    ? "curl http://127.0.0.1:8000/health"
+    : selectedEndpoint.path === "/"
+    ? "curl http://127.0.0.1:8000/"
+    : requestExample;
+
+const liveResponse =
+  predictionResult || healthResult
+    ? JSON.stringify(predictionResult || healthResult, null, 2)
+    : responseExample;
 
   return (
     <div className="space-y-8">
@@ -182,17 +236,20 @@ export function APIConsole() {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">{endpoints[activeEndpoint].latency}</span>
                 <Button
-                  className="bg-[#00D4FF] hover:bg-[#00B8E0] text-[#0F0F12] h-7 px-3 text-xs"
-                >
-                  <Play className="w-3 h-3 mr-1.5" /> Run
-                </Button>
+  onClick={runEndpoint}
+  disabled={loading}
+  className="bg-[#00D4FF] hover:bg-[#00B8E0] text-[#0F0F12] h-7 px-3 text-xs"
+>
+  <Play className="w-3 h-3 mr-1.5" />
+  {loading ? "Running..." : "Run"}
+</Button>
               </div>
             </div>
             <div className="relative">
               <div className="flex items-center justify-between px-5 py-2 border-b border-border bg-muted/40">
                 <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Request</span>
                 <button
-                  onClick={() => copy(requestExample, "req")}
+                  onClick={() => copy(liveRequest, "req")}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {copied === "req" ? (
@@ -204,11 +261,15 @@ export function APIConsole() {
                 </button>
               </div>
               <pre className="p-5 text-xs font-mono text-muted-foreground leading-relaxed overflow-x-auto whitespace-pre">
-                <code>{requestExample}</code>
+                <code>{liveRequest}</code>
               </pre>
             </div>
           </Card>
-
+		{apiError && (
+  <Card className="bg-card border-[#FF2D55]/40 p-4 text-[#FF2D55] text-xs font-mono">
+    {apiError}
+  </Card>
+)}
           <Card className="bg-card border-border overflow-hidden">
             <div className="relative">
               <div className="flex items-center justify-between px-5 py-2 border-b border-border bg-muted/40">
@@ -219,7 +280,7 @@ export function APIConsole() {
                   </span>
                 </div>
                 <button
-                  onClick={() => copy(responseExample, "res")}
+                  onClick={() => copy(liveResponse, "res")}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {copied === "res" ? (
@@ -231,7 +292,7 @@ export function APIConsole() {
                 </button>
               </div>
               <pre className="p-5 text-xs font-mono leading-relaxed overflow-x-auto whitespace-pre">
-                <code className="text-[#34D399]">{responseExample}</code>
+               <code className="text-[#34D399]">{liveResponse}</code>
               </pre>
             </div>
           </Card>

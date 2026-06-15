@@ -46,3 +46,32 @@ export async function predictFraud(
 
   return response.json();
 }
+
+export interface HealthResponse {
+  status: string;
+  service: string;
+  model_loaded: boolean;
+  model_name: string;
+}
+
+export async function getHealthStatus(): Promise<HealthResponse> {
+  const response = await fetch(`${API_BASE_URL}/health`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Health check failed: ${errorText}`);
+  }
+
+  return response.json();
+}
+
+export const sampleFraudPayload: FraudPredictionRequest = {
+  amount: 900000,
+  transaction_type: "TRANSFER",
+  oldbalanceOrg: 900000,
+  newbalanceOrig: 0,
+  oldbalanceDest: 10000,
+  newbalanceDest: 910000,
+  sender_txn_count: 1,
+  receiver_txn_count: 889,
+};
