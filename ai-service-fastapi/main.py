@@ -1,3 +1,4 @@
+from transaction_memory import transaction_memory
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -47,7 +48,19 @@ def health_check():
 
 @app.post("/predict-fraud", response_model=FraudPredictionResponse)
 def predict_fraud(transaction: TransactionRequest):
+    context_features = transaction_memory.get_context_features(
+        sender_id=transaction.sender_id,
+        receiver_id=transaction.receiver_id,
+    )
+
     input_data, engineered_values = build_model_features(transaction)
+
+    transaction_memory.record_transaction(
+        sender_id=transaction.sender_id,
+        receiver_id=transaction.receiver_id,
+        amount=transaction.amount,
+        transaction_type=transaction.transaction_type,
+    )
 
     fraud_probability = float(model.predict_proba(input_data)[0][1])
     fraud_prediction = int(model.predict(input_data)[0])
@@ -56,10 +69,11 @@ def predict_fraud(transaction: TransactionRequest):
     reason_codes = build_reason_codes(engineered_values)
 
     return {
-        "fraud_prediction": fraud_prediction,
-        "fraud_probability": round(fraud_probability, 4),
-        "risk_level": risk_level,
-        "risk_score_v1": engineered_values["risk_score_v1"],
-        "model_used": MODEL_NAME,
-        "reason_codes": reason_codes,
-    }
+    "fraud_prediction": fraud_prediction,
+    "fraud_probability": round(fraud_probability, 4),
+    "risk_level": risk_level,
+    "risk_score_v1": engineered_values["risk_score_v1"],
+    "model_used": MODEL_NAME,
+    "reason_codes": reason_codes,
+    "context_features": context_features,
+}
