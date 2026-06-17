@@ -1,15 +1,24 @@
 import sys
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from main import app  # noqa: E402
+from transaction_memory import transaction_memory  # noqa: E402
 
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def reset_transaction_memory():
+    transaction_memory.clear()
+    yield
+    transaction_memory.clear()
 
 
 def test_health_endpoint():
@@ -27,6 +36,8 @@ def test_health_endpoint():
 
 def test_high_risk_fraud_prediction():
     payload = {
+        "sender_id": "high-risk-sender",
+        "receiver_id": "high-risk-receiver",
         "amount": 900000,
         "transaction_type": "TRANSFER",
         "oldbalanceOrg": 900000,
@@ -49,10 +60,14 @@ def test_high_risk_fraud_prediction():
     assert data["reason_codes"]["high_risk_transaction_type"] is True
     assert data["reason_codes"]["sender_emptied_account"] is True
     assert data["reason_codes"]["large_amount"] is True
+    assert data["context_features"]["sender_txn_count_10m"] == 0
+    assert data["velocity_signals"]["velocity_score"] == 0
 
 
 def test_low_risk_fraud_prediction():
     payload = {
+        "sender_id": "low-risk-sender",
+        "receiver_id": "low-risk-receiver",
         "amount": 2500,
         "transaction_type": "PAYMENT",
         "oldbalanceOrg": 10000,
@@ -75,3 +90,5 @@ def test_low_risk_fraud_prediction():
     assert data["reason_codes"]["high_risk_transaction_type"] is False
     assert data["reason_codes"]["sender_emptied_account"] is False
     assert data["reason_codes"]["large_amount"] is False
+    assert data["context_features"]["sender_txn_count_10m"] == 0
+    assert data["velocity_signals"]["velocity_score"] == 0

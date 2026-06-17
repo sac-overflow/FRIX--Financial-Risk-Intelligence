@@ -28,6 +28,15 @@ class ReasonCodes(BaseModel):
     origin_balance_error: float
     dest_balance_error: float
 
+class VelocitySignals(BaseModel):
+    sender_velocity_alert: bool
+    receiver_velocity_alert: bool
+    sender_volume_alert: bool
+    receiver_volume_alert: bool
+    repeated_small_transfer: bool
+    funnel_pattern: bool
+    fan_out_pattern: bool
+    velocity_score: int
 
 class FraudPredictionResponse(BaseModel):
     fraud_prediction: int
@@ -37,3 +46,5 @@ class FraudPredictionResponse(BaseModel):
     model_used: str
     reason_codes: ReasonCodes
     context_features: ContextFeatures
+    velocity_signals: VelocitySignals
+ 
