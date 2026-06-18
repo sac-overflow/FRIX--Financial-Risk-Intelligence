@@ -92,3 +92,36 @@ def test_low_risk_fraud_prediction():
     assert data["reason_codes"]["large_amount"] is False
     assert data["context_features"]["sender_txn_count_10m"] == 0
     assert data["velocity_signals"]["velocity_score"] == 0
+
+
+def test_repeated_transactions_trigger_velocity_alerts():
+    payload = {
+        "sender_id": "velocity-sender",
+        "receiver_id": "velocity-receiver",
+        "amount": 2500,
+        "transaction_type": "TRANSFER",
+        "oldbalanceOrg": 50000,
+        "newbalanceOrig": 47500,
+        "oldbalanceDest": 10000,
+        "newbalanceDest": 12500,
+        "sender_txn_count": 1,
+        "receiver_txn_count": 1,
+    }
+
+    response = None
+
+    for _ in range(6):
+        response = client.post("/predict-fraud", json=payload)
+        assert response.status_code == 200
+
+    assert response is not None
+    data = response.json()
+
+    assert data["context_features"]["sender_txn_count_10m"] == 5
+    assert data["context_features"]["receiver_txn_count_10m"] == 5
+    assert data["context_features"]["sender_volume_10m"] == 12500.0
+    assert data["context_features"]["receiver_volume_10m"] == 12500.0
+    assert data["velocity_signals"]["sender_velocity_alert"] is True
+    assert data["velocity_signals"]["receiver_velocity_alert"] is True
+    assert data["velocity_signals"]["repeated_small_transfer"] is True
+    assert data["velocity_signals"]["velocity_score"] == 50
