@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from feature_engineering import build_model_features
 from model_loader import MODEL_NAME, is_model_available, load_fraud_model
 from risk_explainer import assign_risk_level, build_reason_codes
+from risk_fusion import calculate_fused_risk
 from schemas import FraudPredictionResponse, TransactionRequest
 from transaction_memory import transaction_memory
 from velocity_engine import calculate_velocity_signals
@@ -65,6 +66,12 @@ def predict_fraud(transaction: TransactionRequest):
     fraud_probability = float(model.predict_proba(input_data)[0][1])
     fraud_prediction = int(model.predict(input_data)[0])
 
+    fused_risk = calculate_fused_risk(
+        fraud_probability=fraud_probability,
+        rule_risk_score=engineered_values["risk_score_v1"],
+        velocity_score=velocity_signals["velocity_score"],
+    )
+
     risk_level = assign_risk_level(fraud_probability)
     reason_codes = build_reason_codes(engineered_values)
 
@@ -84,4 +91,5 @@ def predict_fraud(transaction: TransactionRequest):
         "reason_codes": reason_codes,
         "context_features": context_features,
         "velocity_signals": velocity_signals,
+        "fused_risk": fused_risk,
     }
