@@ -38,10 +38,24 @@ class VelocitySignals(BaseModel):
     fan_out_pattern: bool
     velocity_score: int
 
+class GraphSignals(BaseModel):
+    sender_out_degree: int
+    receiver_in_degree: int
+    repeated_pair_count: int
+    repeated_pair_volume: float
+    fan_out_alert: bool
+    funnel_alert: bool
+    repeated_pair_alert: bool
+    reciprocal_link: bool
+    self_transfer: bool
+    graph_score: int
+
+
 class FusedRisk(BaseModel):
     ml_score: int
     rule_risk_score: int
     velocity_score: int
+    graph_score: int
     fused_risk_score: int
     fused_risk_level: str
 
@@ -56,4 +70,5 @@ class FraudPredictionResponse(BaseModel):
     context_features: ContextFeatures
     velocity_signals: VelocitySignals
     fused_risk: FusedRisk
+    graph_signals: GraphSignals
  

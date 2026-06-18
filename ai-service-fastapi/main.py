@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from feature_engineering import build_model_features
+from graph_engine import graph_intelligence
 from model_loader import MODEL_NAME, is_model_available, load_fraud_model
 from risk_explainer import assign_risk_level, build_reason_codes
 from risk_fusion import calculate_fused_risk
@@ -61,6 +62,11 @@ def predict_fraud(transaction: TransactionRequest):
         amount=transaction.amount,
     )
 
+    graph_signals = graph_intelligence.get_graph_signals(
+        sender_id=transaction.sender_id,
+        receiver_id=transaction.receiver_id,
+    )
+
     input_data, engineered_values = build_model_features(transaction)
 
     fraud_probability = float(model.predict_proba(input_data)[0][1])
@@ -70,6 +76,7 @@ def predict_fraud(transaction: TransactionRequest):
         fraud_probability=fraud_probability,
         rule_risk_score=engineered_values["risk_score_v1"],
         velocity_score=velocity_signals["velocity_score"],
+        graph_score=graph_signals["graph_score"],
     )
 
     risk_level = assign_risk_level(fraud_probability)
@@ -82,6 +89,12 @@ def predict_fraud(transaction: TransactionRequest):
         transaction_type=transaction.transaction_type,
     )
 
+    graph_intelligence.record_transaction(
+        sender_id=transaction.sender_id,
+        receiver_id=transaction.receiver_id,
+        amount=transaction.amount,
+    )
+
     return {
         "fraud_prediction": fraud_prediction,
         "fraud_probability": round(fraud_probability, 4),
@@ -92,4 +105,5 @@ def predict_fraud(transaction: TransactionRequest):
         "context_features": context_features,
         "velocity_signals": velocity_signals,
         "fused_risk": fused_risk,
+        "graph_signals": graph_signals,
     }

@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from main import app  # noqa: E402
+from graph_engine import graph_intelligence  # noqa: E402
 from transaction_memory import transaction_memory  # noqa: E402
 
 
@@ -15,10 +16,12 @@ client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def reset_transaction_memory():
+def reset_risk_engine_state():
     transaction_memory.clear()
+    graph_intelligence.clear()
     yield
     transaction_memory.clear()
+    graph_intelligence.clear()
 
 
 def test_health_endpoint():
