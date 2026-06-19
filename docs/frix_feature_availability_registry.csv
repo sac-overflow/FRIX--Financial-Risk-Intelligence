@@ -1,0 +1,49 @@
+feature,feature_family,availability_at_prediction,strict_model_status,leakage_risk,notes
+step,current_transaction,pre-transaction,yes,low,Coarse time-step; preserve stable order within same step.
+type,current_transaction,pre-transaction,yes,low,Known before authorization.
+amount,current_transaction,pre-transaction,yes,low,Requested amount.
+nameOrig,identifier,lookup only,no,medium,Use only to retrieve history; never direct model input.
+oldbalanceOrg,current_transaction,pre-transaction,yes,low,Sender balance before execution.
+newbalanceOrig,post_transaction,post-transaction,no,critical,Forbidden for strict model.
+nameDest,identifier,lookup only,no,medium,Use only to retrieve history; never direct model input.
+oldbalanceDest,current_transaction,pre-transaction if available,yes,medium,Allowed only if genuinely available in production.
+newbalanceDest,post_transaction,post-transaction,no,critical,Forbidden for strict model.
+isFraud,target,post-label,no,critical,Target only.
+isFlaggedFraud,policy_output,decision output,no,high,Exclude from training.
+origin_balance_error,post_transaction_derived,post-transaction,no,critical,Uses newbalanceOrig.
+dest_balance_error,post_transaction_derived,post-transaction,no,critical,Uses newbalanceDest.
+is_high_risk_type,current_transaction_derived,pre-transaction,yes,low,Derived only from type.
+sender_txn_count,global_aggregate,future-contaminated,no,critical,Full-dataset sender count.
+receiver_txn_count,global_aggregate,future-contaminated,no,critical,Full-dataset receiver count.
+sender_emptied_account,post_transaction_derived,post-transaction,no,critical,Uses post-transaction balance.
+is_large_amount,global_threshold_feature,dataset-fitted,no,high,Global threshold; must be fitted inside training only.
+risk_score_v1,policy_score,contaminated,no,critical,Depends on leaked/global features.
+rule_alert_v1,policy_output,contaminated,no,critical,Derived from risk_score_v1.
+sender_out_degree_prior,graph_historical,strictly prior,yes,low,Causal prior unique receivers.
+receiver_in_degree_prior,graph_historical,strictly prior,yes,low,Causal prior unique senders.
+receiver_total_amount_prior,graph_historical,strictly prior,yes,low,Prior receiver amount only.
+receiver_avg_amount_prior,graph_historical,strictly prior,yes,low,Prior receiver average only.
+receiver_high_risk_txn_count_prior,graph_historical,strictly prior,yes,medium,Prior high-risk-type count.
+repeated_pair_count_prior,graph_historical,strictly prior,yes,low,Prior sender-receiver count.
+repeated_pair_volume_prior,graph_historical,strictly prior,yes,low,Prior sender-receiver volume.
+reciprocal_link_prior,graph_historical,strictly prior,yes,low,Prior reverse-link indicator.
+self_transfer,current_transaction_derived,pre-transaction,yes,low,Sender equals receiver.
+fan_out_alert_v2,graph_rule,strictly prior,yes,medium,Derived from prior graph only.
+funnel_alert_v2,graph_rule,strictly prior,yes,medium,Derived from prior graph only.
+repeated_pair_alert_v2,graph_rule,strictly prior,yes,medium,Derived from prior pair count.
+possible_mule_receiver_v2,graph_rule,strictly prior,yes,medium,Causal mule heuristic.
+graph_risk_score_v2,graph_policy_score,strictly prior,review,medium,Ablate against raw graph features to avoid double counting.
+sender_prior_txn_count,temporal_historical,strictly prior,yes,low,Causal sender count.
+receiver_prior_txn_count,temporal_historical,strictly prior,yes,low,Causal receiver count.
+sender_prior_volume,temporal_historical,strictly prior,yes,low,Causal sender volume.
+receiver_prior_volume,temporal_historical,strictly prior,yes,low,Causal receiver volume.
+sender_same_step_txn_count,velocity_historical,prior row in same step,review,medium,Needs stable row order because timestamp is coarse.
+receiver_same_step_txn_count,velocity_historical,prior row in same step,review,medium,Needs stable row order because timestamp is coarse.
+sender_same_step_volume,velocity_historical,prior row in same step,review,medium,Needs stable row order because timestamp is coarse.
+receiver_same_step_volume,velocity_historical,prior row in same step,review,medium,Needs stable row order because timestamp is coarse.
+sender_velocity_alert_v2,velocity_rule,strictly prior,review,medium,Derived from same-step history.
+receiver_velocity_alert_v2,velocity_rule,strictly prior,review,medium,Derived from same-step history.
+sender_volume_alert_v2,velocity_rule,strictly prior,review,medium,Derived from same-step volume.
+receiver_volume_alert_v2,velocity_rule,strictly prior,review,medium,Derived from same-step volume.
+repeated_small_transfer_v2,velocity_rule,strictly prior,review,medium,Current amount plus prior sender history.
+velocity_score_v2,velocity_policy_score,strictly prior,review,medium,Ablate against raw velocity features to avoid double counting.
