@@ -1,0 +1,22 @@
+[
+  "amount",
+  "oldbalanceOrg",
+  "oldbalanceDest",
+  "is_high_risk_type",
+  "sender_prior_txn_count",
+  "receiver_prior_txn_count",
+  "sender_prior_volume",
+  "receiver_prior_volume",
+  "sender_out_degree_prior",
+  "receiver_in_degree_prior",
+  "receiver_total_amount_prior",
+  "receiver_avg_amount_prior",
+  "receiver_high_risk_txn_count_prior",
+  "funnel_alert_v2",
+  "possible_mule_receiver_v2",
+  "type_CASH_IN",
+  "type_CASH_OUT",
+  "type_DEBIT",
+  "type_PAYMENT",
+  "type_TRANSFER"
+]

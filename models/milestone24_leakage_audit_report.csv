@@ -1,0 +1,50 @@
+check,feature,severity,status,details
+constant_feature,fan_out_alert_v2,medium,review,Feature is constant.
+constant_feature,reciprocal_link_prior,medium,review,Feature is constant.
+constant_feature,repeated_pair_alert_v2,medium,review,Feature is constant.
+constant_feature,repeated_pair_count_prior,medium,review,Feature is constant.
+constant_feature,repeated_pair_volume_prior,medium,review,Feature is constant.
+constant_feature,repeated_small_transfer_v2,medium,review,Feature is constant.
+constant_feature,self_transfer,medium,review,Feature is constant.
+constant_feature,sender_velocity_alert_v2,medium,review,Feature is constant.
+strict_permission,graph_risk_score_v2,medium,review,Feature requires manual review or ablation.
+strict_permission,receiver_same_step_txn_count,medium,review,Feature requires manual review or ablation.
+strict_permission,receiver_same_step_volume,medium,review,Feature requires manual review or ablation.
+strict_permission,receiver_velocity_alert_v2,medium,review,Feature requires manual review or ablation.
+strict_permission,receiver_volume_alert_v2,medium,review,Feature requires manual review or ablation.
+strict_permission,repeated_small_transfer_v2,medium,review,Feature requires manual review or ablation.
+strict_permission,sender_same_step_txn_count,medium,review,Feature requires manual review or ablation.
+strict_permission,sender_same_step_volume,medium,review,Feature requires manual review or ablation.
+strict_permission,sender_velocity_alert_v2,medium,review,Feature requires manual review or ablation.
+strict_permission,sender_volume_alert_v2,medium,review,Feature requires manual review or ablation.
+strict_permission,velocity_score_v2,medium,review,Feature requires manual review or ablation.
+explicit_forbidden,,none,pass,No explicitly forbidden features found.
+name_pattern,,none,pass,No suspicious post-transaction names found.
+registry_coverage,,none,pass,Every dataset feature is registered.
+strict_permission,amount,none,pass,Feature approved for strict model.
+strict_permission,fan_out_alert_v2,none,pass,Feature approved for strict model.
+strict_permission,funnel_alert_v2,none,pass,Feature approved for strict model.
+strict_permission,is_high_risk_type,none,pass,Feature approved for strict model.
+strict_permission,oldbalanceDest,none,pass,Feature approved for strict model.
+strict_permission,oldbalanceOrg,none,pass,Feature approved for strict model.
+strict_permission,possible_mule_receiver_v2,none,pass,Feature approved for strict model.
+strict_permission,receiver_avg_amount_prior,none,pass,Feature approved for strict model.
+strict_permission,receiver_high_risk_txn_count_prior,none,pass,Feature approved for strict model.
+strict_permission,receiver_in_degree_prior,none,pass,Feature approved for strict model.
+strict_permission,receiver_prior_txn_count,none,pass,Feature approved for strict model.
+strict_permission,receiver_prior_volume,none,pass,Feature approved for strict model.
+strict_permission,receiver_total_amount_prior,none,pass,Feature approved for strict model.
+strict_permission,reciprocal_link_prior,none,pass,Feature approved for strict model.
+strict_permission,repeated_pair_alert_v2,none,pass,Feature approved for strict model.
+strict_permission,repeated_pair_count_prior,none,pass,Feature approved for strict model.
+strict_permission,repeated_pair_volume_prior,none,pass,Feature approved for strict model.
+strict_permission,self_transfer,none,pass,Feature approved for strict model.
+strict_permission,sender_out_degree_prior,none,pass,Feature approved for strict model.
+strict_permission,sender_prior_txn_count,none,pass,Feature approved for strict model.
+strict_permission,sender_prior_volume,none,pass,Feature approved for strict model.
+strict_permission,step,none,pass,Feature approved for strict model.
+strict_permission,type_CASH_IN,none,pass,Feature approved for strict model.
+strict_permission,type_CASH_OUT,none,pass,Feature approved for strict model.
+strict_permission,type_DEBIT,none,pass,Feature approved for strict model.
+strict_permission,type_PAYMENT,none,pass,Feature approved for strict model.
+strict_permission,type_TRANSFER,none,pass,Feature approved for strict model.
