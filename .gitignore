@@ -18,3 +18,4 @@ frontend-react/figma-export/
 frontend-react/dist/
 models/milestone24_strict_pretransaction_test_predictions.csv
 models/milestone24_statistical_baseline_test_predictions.csv
+models/milestone24_threshold_oof_predictions.csv
