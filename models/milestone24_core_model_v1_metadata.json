@@ -1,0 +1,37 @@
+{
+  "dataset": "C:\\Users\\sachh\\frix-financial-risk-intelligence\\data\\frix_enriched_dataset_v3.csv",
+  "feature_file": "C:\\Users\\sachh\\frix-financial-risk-intelligence\\models\\milestone24_core_pretransaction_features.json",
+  "feature_count": 20,
+  "features": [
+    "amount",
+    "oldbalanceOrg",
+    "oldbalanceDest",
+    "is_high_risk_type",
+    "sender_prior_txn_count",
+    "receiver_prior_txn_count",
+    "sender_prior_volume",
+    "receiver_prior_volume",
+    "sender_out_degree_prior",
+    "receiver_in_degree_prior",
+    "receiver_total_amount_prior",
+    "receiver_avg_amount_prior",
+    "receiver_high_risk_txn_count_prior",
+    "funnel_alert_v2",
+    "possible_mule_receiver_v2",
+    "type_CASH_IN",
+    "type_CASH_OUT",
+    "type_DEBIT",
+    "type_PAYMENT",
+    "type_TRANSFER"
+  ],
+  "train_fraction": 0.6,
+  "validation_fraction": 0.2,
+  "latest_fraction_excluded": 0.2,
+  "thresholds": {
+    "logistic_regression_core_v1": 0.9992779312748965,
+    "random_forest_core_v1": 0.8733898650808062,
+    "xgboost_core_v1": 0.994566798210144
+  },
+  "ranking_metric": "pr_auc",
+  "status": "development_core_benchmark"
+}

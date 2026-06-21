@@ -20,3 +20,4 @@ models/milestone24_strict_pretransaction_test_predictions.csv
 models/milestone24_statistical_baseline_test_predictions.csv
 models/milestone24_threshold_oof_predictions.csv
 models/milestone24_holdout_predictions.csv
+models/milestone24_core_model_v1_validation_predictions.csv
