@@ -1,0 +1,85 @@
+{
+  "status": "deployment_artifacts_created",
+  "training_fraction": 0.8,
+  "artifacts": {
+    "frix_xgboost_base_v1": {
+      "path": "C:\\Users\\sachh\\frix-financial-risk-intelligence\\models\\frix_xgboost_base_v1.joblib",
+      "feature_set": "base_only",
+      "features": [
+        "amount",
+        "is_high_risk_type",
+        "oldbalanceDest",
+        "oldbalanceOrg",
+        "type_CASH_IN",
+        "type_CASH_OUT",
+        "type_DEBIT",
+        "type_PAYMENT",
+        "type_TRANSFER"
+      ],
+      "feature_count": 9,
+      "hyperparameters": {
+        "feature_set": "base_only",
+        "config_id": 12,
+        "feature_count": 9,
+        "max_depth": 8,
+        "learning_rate": 0.05,
+        "reg_lambda": 5.0,
+        "n_estimators": 350,
+        "fold_1_pr_auc": 0.3884804148664584,
+        "fold_2_pr_auc": 0.3727790494614978,
+        "fold_3_pr_auc": 0.40223900451230404,
+        "mean_pr_auc": 0.3878328229467534,
+        "std_pr_auc": 0.01474065023564874,
+        "min_pr_auc": 0.3727790494614978,
+        "max_pr_auc": 0.40223900451230404,
+        "stability_score": 0.38414766038784126,
+        "training_seconds": 50.41
+      },
+      "training_rows": 838860,
+      "training_fraud": 472
+    },
+    "frix_xgboost_graph_v1": {
+      "path": "C:\\Users\\sachh\\frix-financial-risk-intelligence\\models\\frix_xgboost_graph_v1.joblib",
+      "feature_set": "base_plus_graph",
+      "features": [
+        "amount",
+        "funnel_alert_v2",
+        "is_high_risk_type",
+        "oldbalanceDest",
+        "oldbalanceOrg",
+        "possible_mule_receiver_v2",
+        "receiver_avg_amount_prior",
+        "receiver_high_risk_txn_count_prior",
+        "receiver_in_degree_prior",
+        "receiver_total_amount_prior",
+        "sender_out_degree_prior",
+        "type_CASH_IN",
+        "type_CASH_OUT",
+        "type_DEBIT",
+        "type_PAYMENT",
+        "type_TRANSFER"
+      ],
+      "feature_count": 16,
+      "hyperparameters": {
+        "feature_set": "base_plus_graph",
+        "config_id": 7,
+        "feature_count": 16,
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "reg_lambda": 1.0,
+        "n_estimators": 350,
+        "fold_1_pr_auc": 0.416912183293963,
+        "fold_2_pr_auc": 0.3967151469865527,
+        "fold_3_pr_auc": 0.3811461314924339,
+        "mean_pr_auc": 0.39825782059098325,
+        "std_pr_auc": 0.017932860807879217,
+        "min_pr_auc": 0.3811461314924339,
+        "max_pr_auc": 0.416912183293963,
+        "stability_score": 0.39377460538901343,
+        "training_seconds": 50.17
+      },
+      "training_rows": 838860,
+      "training_fraud": 472
+    }
+  }
+}
