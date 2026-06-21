@@ -1,0 +1,16 @@
+{
+  "base_only": {
+    "method": "isotonic",
+    "brier_score": 0.000323046720167585,
+    "log_loss": 0.0018749208614490705,
+    "ece_10_bins": 0.0007535049128438554,
+    "evaluation_fold": 3
+  },
+  "base_plus_graph": {
+    "method": "isotonic",
+    "brier_score": 0.0003322034126404991,
+    "log_loss": 0.001986711465269657,
+    "ece_10_bins": 0.0007321304719597016,
+    "evaluation_fold": 3
+  }
+}
