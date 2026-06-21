@@ -1,0 +1,90 @@
+{
+  "milestone": "24L",
+  "status": "frozen_internal_development_selection",
+  "prediction_time": "Immediately before authorization using the current transaction request and history strictly prior to it.",
+  "champion": {
+    "name": "frix_xgboost_base_v1",
+    "feature_set": "base_only",
+    "role": "primary_fraud_ranking_and_balanced_review",
+    "hyperparameters": {
+      "feature_set": "base_only",
+      "config_id": 12,
+      "feature_count": 9,
+      "max_depth": 8,
+      "learning_rate": 0.05,
+      "reg_lambda": 5.0,
+      "n_estimators": 350,
+      "fold_1_pr_auc": 0.3884804148664584,
+      "fold_2_pr_auc": 0.3727790494614978,
+      "fold_3_pr_auc": 0.40223900451230404,
+      "mean_pr_auc": 0.3878328229467534,
+      "std_pr_auc": 0.01474065023564874,
+      "min_pr_auc": 0.3727790494614978,
+      "max_pr_auc": 0.40223900451230404,
+      "stability_score": 0.38414766038784126,
+      "training_seconds": 50.41
+    },
+    "threshold_profile": "max_f1",
+    "threshold": 0.987805724143982,
+    "calibrator": "isotonic",
+    "holdout_metrics": {
+      "pr_auc": 0.7811084697830605,
+      "pr_auc_ci_lower": 0.751492818481392,
+      "pr_auc_ci_upper": 0.8088403109778473,
+      "precision": 0.8803827751196173,
+      "recall": 0.5492537313432836,
+      "f1_score": 0.6764705882352942,
+      "false_positive": 50,
+      "false_negative": 302
+    }
+  },
+  "challenger": {
+    "name": "frix_xgboost_graph_v1",
+    "feature_set": "base_plus_graph",
+    "role": "graph_aware_specialist_and_investigation_routing",
+    "hyperparameters": {
+      "feature_set": "base_plus_graph",
+      "config_id": 7,
+      "feature_count": 16,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "reg_lambda": 1.0,
+      "n_estimators": 350,
+      "fold_1_pr_auc": 0.416912183293963,
+      "fold_2_pr_auc": 0.3967151469865527,
+      "fold_3_pr_auc": 0.3811461314924339,
+      "mean_pr_auc": 0.39825782059098325,
+      "std_pr_auc": 0.017932860807879217,
+      "min_pr_auc": 0.3811461314924339,
+      "max_pr_auc": 0.416912183293963,
+      "stability_score": 0.39377460538901343,
+      "training_seconds": 50.17
+    },
+    "balanced_profile": {
+      "threshold": 0.9919075965881348,
+      "calibrator": "isotonic",
+      "precision": 0.9326923076923076,
+      "recall": 0.4343283582089552,
+      "f1_score": 0.5926680244399185
+    },
+    "investigation_profile": {
+      "threshold": 0.8621820211410522,
+      "precision": 0.5497206703910614,
+      "recall": 0.7343283582089553,
+      "f1_score": 0.6287539936102237
+    },
+    "holdout_pr_auc": 0.7330112695705105,
+    "holdout_pr_auc_ci_lower": 0.6990871585621115,
+    "holdout_pr_auc_ci_upper": 0.7641601646897277
+  },
+  "routing_policy": {
+    "default_model": "frix_xgboost_base_v1",
+    "graph_model_usage": "Use as a specialist score when meaningful prior sender/receiver graph history exists.",
+    "disagreement_action": "Route strong champion/challenger disagreement to manual review or additional rules."
+  },
+  "limitations": [
+    "The latest PaySim period was used in earlier exploratory work, so it is an internal temporal benchmark rather than a fully untouched external validation set.",
+    "Production claims require external or newly collected transaction data.",
+    "Thresholds and calibration must be monitored for drift."
+  ]
+}
