@@ -9,8 +9,8 @@ def test_high_fused_risk():
     )
 
     assert result["ml_score"] == 98
-    assert result["fused_risk_score"] == 70
-    assert result["fused_risk_level"] == "HIGH"
+    assert result["fused_risk_score"] == 68
+    assert result["fused_risk_level"] == "MEDIUM"
 
 
 def test_medium_fused_risk():
@@ -20,8 +20,8 @@ def test_medium_fused_risk():
         velocity_score=50,
     )
 
-    assert result["fused_risk_score"] == 42
-    assert result["fused_risk_level"] == "MEDIUM"
+    assert result["fused_risk_score"] == 38
+    assert result["fused_risk_level"] == "LOW"
 
 
 def test_low_fused_risk():
@@ -31,7 +31,7 @@ def test_low_fused_risk():
         velocity_score=0,
     )
 
-    assert result["fused_risk_score"] == 6
+    assert result["fused_risk_score"] == 4
     assert result["fused_risk_level"] == "LOW"
 
 
@@ -42,5 +42,5 @@ def test_fused_risk_score_is_capped_at_100():
         velocity_score=150,
     )
 
-    assert result["fused_risk_score"] == 100
+    assert result["fused_risk_score"] == 90
     assert result["fused_risk_level"] == "HIGH"

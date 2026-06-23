@@ -34,7 +34,7 @@ def test_health_endpoint():
     assert data["status"] == "ok"
     assert data["service"] == "frix-ai-service"
     assert data["model_loaded"] is True
-    assert data["model_name"] == "random_forest_fraud_model_day2"
+    assert data["model_name"] == "frix_xgboost_base_v1"
 
 
 def test_high_risk_fraud_prediction():
@@ -59,7 +59,7 @@ def test_high_risk_fraud_prediction():
 
     assert data["fraud_prediction"] == 1
     assert data["risk_level"] == "HIGH"
-    assert data["model_used"] == "random_forest_fraud_model_day2"
+    assert data["model_used"] == "frix_xgboost_base_v1"
     assert data["reason_codes"]["high_risk_transaction_type"] is True
     assert data["reason_codes"]["sender_emptied_account"] is True
     assert data["reason_codes"]["large_amount"] is True
@@ -89,7 +89,7 @@ def test_low_risk_fraud_prediction():
 
     assert data["fraud_prediction"] == 0
     assert data["risk_level"] == "LOW"
-    assert data["model_used"] == "random_forest_fraud_model_day2"
+    assert data["model_used"] == "frix_xgboost_base_v1"
     assert data["reason_codes"]["high_risk_transaction_type"] is False
     assert data["reason_codes"]["sender_emptied_account"] is False
     assert data["reason_codes"]["large_amount"] is False
