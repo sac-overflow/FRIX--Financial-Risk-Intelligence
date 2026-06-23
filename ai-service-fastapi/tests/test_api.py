@@ -26,11 +26,8 @@ def reset_risk_engine_state():
 
 def test_health_endpoint():
     response = client.get("/health")
-
     assert response.status_code == 200
-
     data = response.json()
-
     assert data["status"] == "ok"
     assert data["service"] == "frix-ai-service"
     assert data["model_loaded"] is True
@@ -50,13 +47,9 @@ def test_high_risk_fraud_prediction():
         "sender_txn_count": 1,
         "receiver_txn_count": 27,
     }
-
     response = client.post("/predict-fraud", json=payload)
-
     assert response.status_code == 200
-
     data = response.json()
-
     assert data["fraud_prediction"] == 1
     assert data["risk_level"] == "HIGH"
     assert data["model_used"] == "frix_xgboost_base_v1"
@@ -80,13 +73,9 @@ def test_low_risk_fraud_prediction():
         "sender_txn_count": 1,
         "receiver_txn_count": 1,
     }
-
     response = client.post("/predict-fraud", json=payload)
-
     assert response.status_code == 200
-
     data = response.json()
-
     assert data["fraud_prediction"] == 0
     assert data["risk_level"] == "LOW"
     assert data["model_used"] == "frix_xgboost_base_v1"
@@ -110,16 +99,12 @@ def test_repeated_transactions_trigger_velocity_alerts():
         "sender_txn_count": 1,
         "receiver_txn_count": 1,
     }
-
     response = None
-
     for _ in range(6):
         response = client.post("/predict-fraud", json=payload)
         assert response.status_code == 200
-
     assert response is not None
     data = response.json()
-
     assert data["context_features"]["sender_txn_count_10m"] == 5
     assert data["context_features"]["receiver_txn_count_10m"] == 5
     assert data["context_features"]["sender_volume_10m"] == 12500.0
@@ -128,3 +113,74 @@ def test_repeated_transactions_trigger_velocity_alerts():
     assert data["velocity_signals"]["receiver_velocity_alert"] is True
     assert data["velocity_signals"]["repeated_small_transfer"] is True
     assert data["velocity_signals"]["velocity_score"] == 50
+
+
+def test_prior_graph_history_routes_to_graph_challenger():
+    payload = {
+        "sender_id": "graph-route-sender",
+        "receiver_id": "graph-route-receiver",
+        "amount": 25000,
+        "transaction_type": "TRANSFER",
+        "oldbalanceOrg": 50000,
+        "newbalanceOrig": 25000,
+        "oldbalanceDest": 10000,
+        "newbalanceDest": 35000,
+        "sender_txn_count": 1,
+        "receiver_txn_count": 1,
+    }
+    first_response = client.post("/predict-fraud", json=payload)
+    second_response = client.post("/predict-fraud", json=payload)
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    first_data = first_response.json()
+    second_data = second_response.json()
+    assert first_data["model_used"] == "frix_xgboost_base_v1"
+    assert second_data["model_used"] == "frix_xgboost_graph_v1"
+    assert second_data["graph_signals"]["sender_out_degree"] == 1
+    assert second_data["graph_signals"]["receiver_in_degree"] == 1
+    assert second_data["graph_signals"]["repeated_pair_count"] == 1
+    assert second_data["graph_signals"]["repeated_pair_volume"] == 25000.0
+
+
+def test_many_senders_trigger_funnel_and_graph_alerts():
+    receiver_id = "funnel-test-receiver"
+    for sender_number in range(1, 7):
+        payload = {
+            "sender_id": f"funnel-test-sender-{sender_number}",
+            "receiver_id": receiver_id,
+            "amount": 25000,
+            "transaction_type": "TRANSFER",
+            "oldbalanceOrg": 50000,
+            "newbalanceOrig": 25000,
+            "oldbalanceDest": 10000,
+            "newbalanceDest": 35000,
+            "sender_txn_count": 1,
+            "receiver_txn_count": 1,
+        }
+        response = client.post("/predict-fraud", json=payload)
+        assert response.status_code == 200
+
+    inspection_payload = {
+        "sender_id": "funnel-test-sender-7",
+        "receiver_id": receiver_id,
+        "amount": 25000,
+        "transaction_type": "TRANSFER",
+        "oldbalanceOrg": 50000,
+        "newbalanceOrig": 25000,
+        "oldbalanceDest": 10000,
+        "newbalanceDest": 35000,
+        "sender_txn_count": 1,
+        "receiver_txn_count": 1,
+    }
+    response = client.post("/predict-fraud", json=inspection_payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["model_used"] == "frix_xgboost_graph_v1"
+    assert data["context_features"]["receiver_txn_count_10m"] == 6
+    assert data["context_features"]["unique_senders_10m"] == 6
+    assert data["velocity_signals"]["receiver_velocity_alert"] is True
+    assert data["velocity_signals"]["receiver_volume_alert"] is True
+    assert data["velocity_signals"]["funnel_pattern"] is True
+    assert data["graph_signals"]["receiver_in_degree"] == 6
+    assert data["graph_signals"]["funnel_alert"] is True
+    assert data["graph_signals"]["graph_score"] == 40
