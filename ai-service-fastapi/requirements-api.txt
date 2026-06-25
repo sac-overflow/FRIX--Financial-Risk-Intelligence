@@ -3,4 +3,4 @@ uvicorn
 pandas
 joblib
 pytest
-httpxhttpx2==2.4.0
+httpx==0.28.1
