@@ -16,7 +16,7 @@ Only the latest version of the `main` branch is actively supported with security
 
 We take the security of financial risk intelligence seriously. If you discover a security vulnerability within FRIX, please do not open a public GitHub issue. Instead, report it responsibly via the process below:
 
-1. **Email the Maintainers:** Send a detailed report to `security@yourdomain.com` (Replace with your email).
+1. **Email the Maintainers:** Send a detailed report to `sachhithanandm@gmail.com` .
 2. **Include Details:** * A description of the vulnerability.
    * Steps to reproduce the issue (proof-of-concept code or API payloads).
    * Potential impact (e.g., model manipulation, data leakage, API denial of service).
